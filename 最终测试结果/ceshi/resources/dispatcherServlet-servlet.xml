@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>      
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+        
+<!-- 自动扫描程序的 control包下面所有的类，如果里面有@Controller说明当前类就是处理器-->
+     <context:component-scan base-package="controller"/>
+<!--      <context:component-scan base-package="com.speed.service"/> -->
+<!--      <context:component-scan base-package="com.speed.serviceimpl"/> -->
+<!--      <context:component-scan base-package="com.speed.mapper"/> -->
+<!--      <context:component-scan base-package="socket"/> -->
+<!--      <context:component-scan base-package="com.speed.common"/> -->
+     <context:annotation-config />
+    
+     
+     
+     <bean id="fastJsonHttpMessageConverter" class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>text/html;charset=UTF-8</value>
+			</list>
+		</property>
+     </bean>
+     
+<!--      避免IE执行AJAX时,返回JSON出现下载文件   -->
+<!--     <bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">   -->
+<!--         <property name="supportedMediaTypes">   -->
+<!--             <list>   -->
+<!--                 <value>text/html;charset=UTF-8</value>   -->
+<!--             </list>   -->
+<!--         </property>   -->
+<!--     </bean>   -->
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<ref bean="fastJsonHttpMessageConverter" /> 
+			</list>
+		</property>
+	</bean>
+	<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" />
+	
+<!-- 如果你要使用注解，告诉程序-->
+   	<mvc:annotation-driven>
+		<mvc:message-converters register-defaults="true">
+		<!-- 避免下载文件出现JSON乱码 -->
+			<bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter"/> 
+			 <!-- 避免IE执行AJAX时,返回JSON出现下载文件 -->
+			<bean id="mappingJacksonHttpMessageConverter"
+				class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<list>
+						<value>text/html;charset=UTF-8</value>
+						<value>application/json;charset=UTF-8</value>
+					</list>
+				</property>
+			</bean>
+			 
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<constructor-arg value="UTF-8" />
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+<!--     <bean id="deleteTempFile" class="com.speed.serviceimpl.DeleteTempFile"/> -->
+	
+<!-- 静态资源文件的配置 -->
+ 	<mvc:default-servlet-handler/>  
+ 	<!--拦截器配置  -->
+<!--     <mvc:interceptors> -->
+<!--     	<mvc:interceptor > -->
+<!--             <mvc:mapping path="/user/*" /> -->
+<!--             <mvc:mapping path="/attachment/*" /> -->
+<!--             <mvc:mapping path="/chatrecord/*" /> -->
+<!--             <mvc:mapping path="/dept/*" /> -->
+<!--             <mvc:mapping path="/data/*" /> -->
+<!--             <mvc:mapping path="/hidden/*" /> -->
+<!--             <mvc:mapping path="/role/*" /> -->
+<!--             <mvc:mapping path="/share/*" /> -->
+<!--             <mvc:mapping path="/taskaudit/*" /> -->
+<!--             <mvc:mapping path="/team/*" /> -->
+<!--             <mvc:mapping path="/upload/*" /> -->
+<!--             <mvc:mapping path="/data/file/*" /> -->
+<!--             <mvc:mapping path="/todo/*" /> -->
+<!--             <mvc:mapping path="/authorization/*" /> -->
+<!--             <mvc:mapping path="/email/*" /> -->
+<!--             <mvc:mapping path="/operation/*" /> -->
+<!--             <mvc:mapping path="/safe/*" /> -->
+<!--             <mvc:mapping path="/adScope/*" /> -->
+<!--             <mvc:mapping path="/hisversion/*" /> -->
+<!--             <mvc:exclude-mapping path="/user/login.html" /> -->
+<!-- 			<mvc:exclude-mapping path="/user/login" /> -->
+<!-- 			<mvc:exclude-mapping path="/user/logout" /> -->
+<!-- 			<mvc:exclude-mapping path="/user/superadmLogin" /> -->
+<!-- 			<mvc:exclude-mapping path="/share/sc*" /> -->
+<!-- 			<bean  class="com.speed.common.LoginInterceptor"></bean> -->
+<!--         </mvc:interceptor> -->
+<!--     </mvc:interceptors> -->
+
+<!-- 设置登录页面为默认欢迎页面 -->
+  	 <mvc:view-controller path="/" view-name="redirect:/user/login.html"/>
+
+<!-- 对转向页面的路径解析。prefix：前缀， suffix：后缀 -->
+	 <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" >
+	     <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+		 <property name="prefix" value="/WEB-INF/" />
+<!-- 后缀 -->
+         <property name="suffix" value=".jsp" />
+	 </bean>
+<!-- 处理异常 -->
+     <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+         <property name="exceptionMappings">
+   	        <props>
+   		      <prop key="java.lang.Exception">error/500</prop>
+   	        </props>
+         </property>
+     </bean>
+   
+     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+   	     <property name="defaultEncoding" value="utf-8"></property>
+   	     <property name="maxUploadSize" value="99999999999999"></property>
+     </bean>
+</beans>
